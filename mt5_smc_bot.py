@@ -136,9 +136,9 @@ class MT5SMCBot:
         mt5.shutdown()
 
 if __name__ == "__main__":
-    mt5_login = 12345678
-    mt5_password = "your_password"
-    mt5_server = "Deriv-Server"
+    mt5_login = 208408905
+    mt5_password = "Watoop@222"
+    mt5_server = "Exness-MT5Trial9"
 
     bot = MT5SMCBot(mt5_login, mt5_password, mt5_server)
     bot.run()
