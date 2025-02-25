@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>MT5 Trading Bot Frontend</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      background: #f4f4f4;
+    }
+    .section {
+      margin-bottom: 20px;
+      padding: 15px;
+      background: #fff;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    label {
+      display: block;
+      margin-top: 10px;
+    }
+    input, select, button {
+      width: 100%;
+      padding: 8px;
+      margin-top: 5px;
+      box-sizing: border-box;
+    }
+    button {
+      background-color: #4285F4;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #357ae8;
+    }
+    #output {
+      white-space: pre-wrap;
+      background-color: #e9e9e9;
+      padding: 10px;
+      border: 1px dashed #999;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <h1>MT5 Trading Bot Frontend</h1>
+  
+  <div class="section" id="accountSection">
+    <h2>Account Details</h2>
+    <label for="account_number">Account Number:</label>
+    <input type="text" id="account_number" placeholder="Enter account number">
+    
+    <label for="password">Password:</label>
+    <input type="password" id="password" placeholder="Enter password">
+    
+    <label for="server">Server:</label>
+    <input type="text" id="server" placeholder="Enter server">
+    
+    <button id="connectBtn">Connect to MT5</button>
+  </div>
+  
+  <div class="section" id="marketDataSection">
+    <h2>Market Data</h2>
+    <label for="symbol">Symbol:</label>
+    <input type="text" id="symbol" placeholder="Enter symbol (e.g., USDJPYm)" value="USDJPYm">
+    
+    <label for="timeframe">Timeframe:</label>
+    <select id="timeframe">
+      <option value="M1">M1</option>
+      <option value="M5">M5</option>
+      <option value="M15">M15</option>
+    </select>
+    
+    <button id="marketDataBtn">Get Market Data</button>
+  </div>
+  
+  <div class="section" id="tradeSection">
+    <h2>Place Trade</h2>
+    <label for="lot_size">Lot Size:</label>
+    <input type="number" id="lot_size" placeholder="Enter lot size" value="0.1" step="0.01">
+    
+    <button id="tradeBtn">Place Trade</button>
+  </div>
+  
+  <div class="section" id="closeTradesSection">
+    <h2>Close Trades</h2>
+    <button id="closeTradesBtn">Close Trades by Profit Target</button>
+  </div>
+  
+  <div class="section">
+    <h2>Output</h2>
+    <div id="output"></div>
+  </div>
+  
+  <script>
+    // Set your back-end URL
+    const baseUrl = 'http://localhost:5000';
+  
+    async function connectMT5(accountNumber, password, server) {
+      try {
+        const response = await fetch(`${baseUrl}/connect`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ account_number: accountNumber, password: password, server: server })
+        });
+        return await response.json();
+      } catch (error) {
+        return { status: 'error', message: error.toString() };
+      }
+    }
+  
+    async function getMarketData(accountNumber, password, server, symbol, timeframe) {
+      try {
+        const response = await fetch(`${baseUrl}/market_data`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ account_number: accountNumber, password: password, server: server, symbol: symbol, timeframe: timeframe })
+        });
+        return await response.json();
+      } catch (error) {
+        return { status: 'error', message: error.toString() };
+      }
+    }
+  
+    async function placeTrade(accountNumber, password, server, symbol, timeframe, lotSize) {
+      try {
+        const response = await fetch(`${baseUrl}/trade`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ account_number: accountNumber, password: password, server: server, symbol: symbol, timeframe: timeframe, lot_size: parseFloat(lotSize) })
+        });
+        return await response.json();
+      } catch (error) {
+        return { status: 'error', message: error.toString() };
+      }
+    }
+  
+    async function closeTrades(accountNumber, password, server) {
+      try {
+        const response = await fetch(`${baseUrl}/close_trades`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ account_number: accountNumber, password: password, server: server })
+        });
+        return await response.json();
+      } catch (error) {
+        return { status: 'error', message: error.toString() };
+      }
+    }
+  
+    function displayOutput(message) {
+      document.getElementById('output').textContent = JSON.stringify(message, null, 2);
+    }
+  
+    document.getElementById('connectBtn').addEventListener('click', async () => {
+      const accountNumber = document.getElementById('account_number').value;
+      const password = document.getElementById('password').value;
+      const server = document.getElementById('server').value;
+      const result = await connectMT5(accountNumber, password, server);
+      displayOutput(result);
+    });
+  
+    document.getElementById('marketDataBtn').addEventListener('click', async () => {
+      const accountNumber = document.getElementById('account_number').value;
+      const password = document.getElementById('password').value;
+      const server = document.getElementById('server').value;
+      const symbol = document.getElementById('symbol').value;
+      const timeframe = document.getElementById('timeframe').value;
+      const result = await getMarketData(accountNumber, password, server, symbol, timeframe);
+      displayOutput(result);
+    });
+  
+    document.getElementById('tradeBtn').addEventListener('click', async () => {
+      const accountNumber = document.getElementById('account_number').value;
+      const password = document.getElementById('password').value;
+      const server = document.getElementById('server').value;
+      const symbol = document.getElementById('symbol').value;
+      const timeframe = document.getElementById('timeframe').value;
+      const lotSize = document.getElementById('lot_size').value;
+      const result = await placeTrade(accountNumber, password, server, symbol, timeframe, lotSize);
+      displayOutput(result);
+    });
+  
+    document.getElementById('closeTradesBtn').addEventListener('click', async () => {
+      const accountNumber = document.getElementById('account_number').value;
+      const password = document.getElementById('password').value;
+      const server = document.getElementById('server').value;
+      const result = await closeTrades(accountNumber, password, server);
+      displayOutput(result);
+    });
+  </script>
+</body>
+</html>
